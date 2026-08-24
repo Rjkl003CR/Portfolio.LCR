@@ -248,6 +248,168 @@ function SectionHeading({
   );
 }
 
+/* ───── Contact Form ───── */
+function ContactForm() {
+  const [formData, setFormData] = useState({ name: "", email: "", message: "" });
+  const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
+  const [errorMsg, setErrorMsg] = useState("");
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setStatus("sending");
+    setErrorMsg("");
+
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setStatus("error");
+        setErrorMsg(data.error || "Something went wrong.");
+        return;
+      }
+
+      setStatus("success");
+      setFormData({ name: "", email: "", message: "" });
+    } catch {
+      setStatus("error");
+      setErrorMsg("Network error. Please try again.");
+    }
+  };
+
+  const inputStyle: React.CSSProperties = {
+    background: "rgba(255,255,255,0.03)",
+    border: "1px solid var(--border-color)",
+    borderRadius: "12px",
+    padding: "14px 16px",
+    color: "var(--text-primary)",
+    fontSize: "14px",
+    width: "100%",
+    outline: "none",
+    transition: "border-color 0.3s, box-shadow 0.3s",
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+      <div>
+        <label className="text-xs font-medium mb-2 block" style={{ color: "var(--text-muted)" }}>
+          Your Name
+        </label>
+        <input
+          type="text"
+          placeholder="John Doe"
+          value={formData.name}
+          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+          required
+          minLength={2}
+          style={inputStyle}
+          onFocus={(e) => {
+            e.currentTarget.style.borderColor = "var(--accent)";
+            e.currentTarget.style.boxShadow = "0 0 15px rgba(20,184,166,0.15)";
+          }}
+          onBlur={(e) => {
+            e.currentTarget.style.borderColor = "var(--border-color)";
+            e.currentTarget.style.boxShadow = "none";
+          }}
+        />
+      </div>
+
+      <div>
+        <label className="text-xs font-medium mb-2 block" style={{ color: "var(--text-muted)" }}>
+          Your Email
+        </label>
+        <input
+          type="email"
+          placeholder="john@company.com"
+          value={formData.email}
+          onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+          required
+          style={inputStyle}
+          onFocus={(e) => {
+            e.currentTarget.style.borderColor = "var(--accent)";
+            e.currentTarget.style.boxShadow = "0 0 15px rgba(20,184,166,0.15)";
+          }}
+          onBlur={(e) => {
+            e.currentTarget.style.borderColor = "var(--border-color)";
+            e.currentTarget.style.boxShadow = "none";
+          }}
+        />
+      </div>
+
+      <div>
+        <label className="text-xs font-medium mb-2 block" style={{ color: "var(--text-muted)" }}>
+          Message
+        </label>
+        <textarea
+          placeholder="Tell me about the opportunity..."
+          value={formData.message}
+          onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+          required
+          minLength={10}
+          rows={5}
+          style={{ ...inputStyle, resize: "vertical" }}
+          onFocus={(e) => {
+            e.currentTarget.style.borderColor = "var(--accent)";
+            e.currentTarget.style.boxShadow = "0 0 15px rgba(20,184,166,0.15)";
+          }}
+          onBlur={(e) => {
+            e.currentTarget.style.borderColor = "var(--border-color)";
+            e.currentTarget.style.boxShadow = "none";
+          }}
+        />
+      </div>
+
+      {/* Status Messages */}
+      {status === "success" && (
+        <motion.p
+          initial={{ opacity: 0, y: -5 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-sm font-medium"
+          style={{ color: "var(--accent)" }}
+        >
+          ✅ Message sent! I&apos;ll get back to you soon.
+        </motion.p>
+      )}
+      {status === "error" && (
+        <motion.p
+          initial={{ opacity: 0, y: -5 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-sm font-medium text-red-400"
+        >
+          ❌ {errorMsg}
+        </motion.p>
+      )}
+
+      {/* Submit Button */}
+      <button
+        type="submit"
+        disabled={status === "sending"}
+        className="btn-glow px-7 py-3.5 rounded-xl font-medium text-sm flex items-center justify-center gap-2 w-full disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        {status === "sending" ? (
+          <>
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+              className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full"
+            />
+            Sending...
+          </>
+        ) : (
+          <>
+            <Mail size={16} /> Send Message
+          </>
+        )}
+      </button>
+    </form>
+  );
+}
+
 /* ───── Loading Screen ───── */
 function LoadingScreen() {
   return (
@@ -1251,111 +1413,123 @@ export default function Home() {
             }}
           />
 
-          <div className="max-w-2xl mx-auto text-center relative z-10">
+          <div className="max-w-5xl mx-auto relative z-10">
             <Reveal>
-              <h2
-                className="text-3xl sm:text-4xl font-bold mb-4"
-                style={{
-                  fontFamily: "var(--font-outfit), Outfit, sans-serif",
-                }}
-              >
-                Let&apos;s Work Together
-              </h2>
-              <p
-                className="text-sm mb-10 leading-relaxed"
-                style={{ color: "var(--text-secondary)" }}
-              >
-                I am currently seeking software engineering internship
-                opportunities. Feel free to connect or reach out directly!
-              </p>
+              <SectionHeading icon={Mail} label="Get In Touch" title="Let's Work Together" />
             </Reveal>
 
-            <Reveal delay={0.2}>
-              <div className="flex flex-col sm:flex-row justify-center items-center gap-4 mb-6">
-                <a
-                  href="mailto:rjklcr003@gmail.com"
-                  className="btn-glow px-7 py-3.5 rounded-xl font-medium text-sm"
-                >
-                  <span className="flex items-center gap-2">
-                    <Mail size={16} /> rjklcr003@gmail.com
-                  </span>
-                </a>
-                <a
-                  href="tel:0765923995"
-                  className="btn-outline px-7 py-3.5 rounded-xl font-medium text-sm"
-                >
-                  <span className="flex items-center gap-2">
-                    <Phone size={16} /> +94 76 592 3995
-                  </span>
-                </a>
-              </div>
-            </Reveal>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+              {/* Contact Form */}
+              <Reveal>
+                <ContactForm />
+              </Reveal>
 
-            <Reveal delay={0.3}>
-              <a
-                href={RESUME_URL}
-                target="_blank"
-                rel="noreferrer"
-                className="btn-outline px-7 py-3 rounded-xl font-medium text-sm inline-flex mx-auto mb-10"
-              >
-                <span className="flex items-center gap-2">
-                  <Download size={16} /> Download My Resume
-                </span>
-              </a>
-            </Reveal>
+              {/* Contact Info */}
+              <Reveal delay={0.2}>
+                <div className="flex flex-col gap-6">
+                  <p
+                    className="text-sm leading-relaxed"
+                    style={{ color: "var(--text-secondary)" }}
+                  >
+                    I am currently seeking software engineering and business analyst internship
+                    opportunities. Feel free to send me a message or connect directly!
+                  </p>
 
-            <Reveal delay={0.4}>
-              <div className="flex justify-center gap-4 mb-10">
-                {[
-                  {
-                    icon: GithubIcon,
-                    href: "https://github.com/Rjkl003CR",
-                    label: "GitHub",
-                  },
-                  {
-                    icon: LinkedinIcon,
-                    href: "https://www.linkedin.com/in/chamathka-ranathunga-a825922aa",
-                    label: "LinkedIn",
-                  },
-                ].map((social) => (
+                  {/* Email */}
                   <a
-                    key={social.label}
-                    href={social.href}
+                    href="mailto:rjklcr003@gmail.com"
+                    className="glass-card p-4 rounded-xl flex items-center gap-4 transition-all hover:border-[var(--accent)]"
+                    style={{ borderColor: "var(--border-color)" }}
+                  >
+                    <div
+                      className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0"
+                      style={{ background: "rgba(20,184,166,0.1)", color: "var(--accent)" }}
+                    >
+                      <Mail size={20} />
+                    </div>
+                    <div>
+                      <p className="text-xs font-medium" style={{ color: "var(--text-muted)" }}>Email</p>
+                      <p className="text-sm font-semibold">rjklcr003@gmail.com</p>
+                    </div>
+                  </a>
+
+                  {/* Phone */}
+                  <a
+                    href="tel:0765923995"
+                    className="glass-card p-4 rounded-xl flex items-center gap-4 transition-all hover:border-[var(--accent)]"
+                    style={{ borderColor: "var(--border-color)" }}
+                  >
+                    <div
+                      className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0"
+                      style={{ background: "rgba(20,184,166,0.1)", color: "var(--accent)" }}
+                    >
+                      <Phone size={20} />
+                    </div>
+                    <div>
+                      <p className="text-xs font-medium" style={{ color: "var(--text-muted)" }}>Phone</p>
+                      <p className="text-sm font-semibold">+94 76 592 3995</p>
+                    </div>
+                  </a>
+
+                  {/* Resume */}
+                  <a
+                    href={RESUME_URL}
                     target="_blank"
                     rel="noreferrer"
-                    className="w-11 h-11 rounded-full flex items-center justify-center transition-all duration-400"
-                    style={{
-                      border: "1px solid var(--border-color)",
-                      color: "var(--text-muted)",
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.borderColor = "var(--accent)";
-                      e.currentTarget.style.color = "var(--accent)";
-                      e.currentTarget.style.background =
-                        "rgba(20,184,166,0.08)";
-                      e.currentTarget.style.transform =
-                        "translateY(-4px) scale(1.1)";
-                      e.currentTarget.style.boxShadow =
-                        "0 8px 25px rgba(20,184,166,0.2)";
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.borderColor = "var(--border-color)";
-                      e.currentTarget.style.color = "var(--text-muted)";
-                      e.currentTarget.style.background = "transparent";
-                      e.currentTarget.style.transform =
-                        "translateY(0) scale(1)";
-                      e.currentTarget.style.boxShadow = "none";
-                    }}
-                    aria-label={social.label}
+                    className="glass-card p-4 rounded-xl flex items-center gap-4 transition-all hover:border-[var(--accent)]"
+                    style={{ borderColor: "var(--border-color)" }}
                   >
-                    <social.icon size={18} />
+                    <div
+                      className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0"
+                      style={{ background: "rgba(20,184,166,0.1)", color: "var(--accent)" }}
+                    >
+                      <Download size={20} />
+                    </div>
+                    <div>
+                      <p className="text-xs font-medium" style={{ color: "var(--text-muted)" }}>Resume</p>
+                      <p className="text-sm font-semibold">Download My CV</p>
+                    </div>
                   </a>
-                ))}
-              </div>
-            </Reveal>
 
-            <div className="section-divider mb-6" />
-            <p className="text-xs" style={{ color: "var(--text-muted)" }}>
+                  {/* Socials */}
+                  <div className="flex gap-3 mt-2">
+                    {[
+                      { icon: GithubIcon, href: "https://github.com/Rjkl003CR", label: "GitHub" },
+                      { icon: LinkedinIcon, href: "https://www.linkedin.com/in/chamathka-ranathunga-a825922aa", label: "LinkedIn" },
+                    ].map((social) => (
+                      <a
+                        key={social.label}
+                        href={social.href}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="w-11 h-11 rounded-full flex items-center justify-center transition-all duration-400"
+                        style={{ border: "1px solid var(--border-color)", color: "var(--text-muted)" }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.borderColor = "var(--accent)";
+                          e.currentTarget.style.color = "var(--accent)";
+                          e.currentTarget.style.background = "rgba(20,184,166,0.08)";
+                          e.currentTarget.style.transform = "translateY(-4px) scale(1.1)";
+                          e.currentTarget.style.boxShadow = "0 8px 25px rgba(20,184,166,0.2)";
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.borderColor = "var(--border-color)";
+                          e.currentTarget.style.color = "var(--text-muted)";
+                          e.currentTarget.style.background = "transparent";
+                          e.currentTarget.style.transform = "translateY(0) scale(1)";
+                          e.currentTarget.style.boxShadow = "none";
+                        }}
+                        aria-label={social.label}
+                      >
+                        <social.icon size={18} />
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              </Reveal>
+            </div>
+
+            <div className="section-divider mt-16 mb-6" />
+            <p className="text-xs text-center" style={{ color: "var(--text-muted)" }}>
               © {new Date().getFullYear()} Chamathka Ranathunga. All rights
               reserved.
             </p>
