@@ -32,6 +32,7 @@
 /* ===== Global Styles ===== */
 html {
   scroll-behavior: smooth;
+  scroll-padding-top: 5rem; /* Offsets anchor links so they don't hide under the fixed navbar */
 }
 
 body {
