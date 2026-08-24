@@ -504,7 +504,7 @@ export default function Home() {
         "Engineered secure REST APIs with Role-Based Access Control (RBAC) to protect sensitive data across 15+ endpoints.",
       ],
       tech: ["Next.js", "Spring Boot", "PostgreSQL", "Jira"],
-      link: "https://github.com/Rjkl003CR",
+      link: "https://github.com/SyntaxSoulG10",
     },
     {
       title: "LoRa 10",
@@ -516,7 +516,7 @@ export default function Home() {
         "Developed custom OLED UI and FreeRTOS firmware supporting real-time emergency telemetry, establishing reliable communication over LoRa.",
       ],
       tech: ["ESP32", "LoRa SX1278", "GPS", "OLED", "BLE"],
-      link: "https://github.com/Rjkl003CR",
+      link: "https://lnkd.in/p/gs7WJK-Y",
     },
   ];
 
