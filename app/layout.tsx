@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, Outfit } from "next/font/google";
 import "./globals.css";
 
@@ -13,6 +13,10 @@ const outfit = Outfit({
   subsets: ["latin"],
   display: "swap",
 });
+
+export const viewport: Viewport = {
+  themeColor: "#000000",
+};
 
 export const metadata: Metadata = {
   title: "Chamathka Ranathunga | Full-Stack Developer & IT Undergraduate",
@@ -34,7 +38,6 @@ export const metadata: Metadata = {
     statusBarStyle: "default",
     title: "Chamathka Portfolio",
   },
-  themeColor: "#000000",
 };
 
 import { Providers } from "./Providers";

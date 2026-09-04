@@ -12,24 +12,36 @@ export const projectType = defineType({
       validation: (rule) => rule.required(),
     }),
     defineField({
-      name: 'description',
-      title: 'Description',
-      type: 'text',
-      validation: (rule) => rule.required(),
+      name: 'subtitle',
+      title: 'Subtitle / Tagline',
+      type: 'string',
+    }),
+    defineField({
+      name: 'date',
+      title: 'Date / Period',
+      type: 'string',
+      description: 'e.g. Aug. 2025',
+    }),
+    defineField({
+      name: 'bullets',
+      title: 'Key Bullet Points',
+      type: 'array',
+      of: [{type: 'string'}],
+      description: 'Key achievements or feature descriptions',
+    }),
+    defineField({
+      name: 'tech',
+      title: 'Technologies',
+      type: 'array',
+      of: [{type: 'string'}],
     }),
     defineField({
       name: 'image',
-      title: 'Image',
+      title: 'Project Image',
       type: 'image',
       options: {
         hotspot: true,
       },
-    }),
-    defineField({
-      name: 'technologies',
-      title: 'Technologies',
-      type: 'array',
-      of: [{type: 'string'}],
     }),
     defineField({
       name: 'link',

@@ -1,15 +1,28 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  transpilePackages: [
+    "@sanity/workbench",
+    "@sanity/sdk-react",
+    "sanity",
+    "next-sanity",
+    "@sanity/vision",
+  ],
+  compiler: {
+    styledComponents: true,
+  },
   images: {
     remotePatterns: [
       {
         protocol: "https",
         hostname: "drive.google.com",
       },
+      {
+        protocol: "https",
+        hostname: "cdn.sanity.io",
+      },
     ],
   },
-  turbopack: {},
 };
 
 import withSerwistInit from "@serwist/next";
