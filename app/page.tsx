@@ -30,6 +30,13 @@ import {
   AnimatePresence,
 } from "framer-motion";
 
+import { client } from "@/sanity/lib/client";
+import {
+  PROJECTS_QUERY, PROFILE_QUERY, SKILLS_QUERY, CERTIFICATIONS_QUERY, EDUCATION_QUERY, LEADERSHIP_QUERY,
+  fallbackProjects, fallbackProfile, fallbackSkills, fallbackCertifications, fallbackEducation, fallbackLeadership,
+  type SanityProject, type SanityProfile, type SanitySkillCategory, type SanityCertification, type SanityEducation, type SanityLeadership,
+} from "@/sanity/lib/queries";
+
 /* ───── Inline SVG Icons ───── */
 const GithubIcon = ({ size = 18 }: { size?: number }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
@@ -60,6 +67,15 @@ const staggerItem = {
     transition: { duration: 0.5, ease: "easeOut" as const },
   },
 } as const;
+
+/* ───── Icon Mapping (for Sanity iconKey → Lucide component) ───── */
+const iconMap: Record<string, React.ComponentType<{ size?: number; style?: React.CSSProperties }>> = {
+  code: Code,
+  database: Database,
+  wrench: Wrench,
+  book: BookOpen,
+  server: Server,
+};
 
 /* ───── Scroll Progress Bar ───── */
 function ScrollProgress() {
@@ -471,106 +487,50 @@ export default function Home() {
     { href: "#contact", label: "Contact" },
   ];
 
-  const skills = [
-    {
-      icon: Code,
-      title: "Languages & Frameworks",
-      items: ["Java", "JavaScript", "TypeScript", "Spring Boot", "Next.js", "React.js"],
-    },
-    {
-      icon: Database,
-      title: "Data & Cloud",
-      items: ["PostgreSQL", "MySQL", "SQL", "Vercel"],
-    },
-    {
-      icon: Wrench,
-      title: "Dev & Architecture",
-      items: ["Git", "GitHub", "Jira", "REST APIs"],
-    },
-    {
-      icon: BookOpen,
-      title: "Analytical Skills",
-      items: ["Agile/Scrum", "Requirements Analysis", "Process Modeling", "Stakeholder Comm."],
-    },
-  ];
+  // ─── Sanity CMS State (all sections) ────────────────────────
+  const [profile, setProfile] = useState<SanityProfile>(fallbackProfile);
+  const [skills, setSkills] = useState<SanitySkillCategory[]>(fallbackSkills);
+  const [projects, setProjects] = useState<SanityProject[]>(fallbackProjects);
+  const [certifications, setCertifications] = useState<SanityCertification[]>(fallbackCertifications);
+  const [educationList, setEducationList] = useState<SanityEducation[]>(fallbackEducation);
+  const [leadership, setLeadership] = useState<SanityLeadership[]>(fallbackLeadership);
 
-  const projects = [
-    {
-      title: "FixZone",
-      subtitle: "Vehicle Service Management Platform",
-      bullets: [
-        "Analyzed service shop operations across 4 stakeholder roles to map existing manual workflows and translate business requirements into digital solutions.",
-        "Designed and implemented a scalable multi-tenant architecture using Next.js and Spring Boot, reducing manual workflow overhead by an estimated 60%.",
-        "Engineered secure REST APIs with Role-Based Access Control (RBAC) to protect sensitive data across 15+ endpoints.",
-      ],
-      tech: ["Next.js", "Spring Boot", "PostgreSQL", "Jira"],
-      link: "https://github.com/SyntaxSoulG10",
-    },
-    {
-      title: "LoRa 10",
-      subtitle: "Long-Range Hiker Safety System",
-      date: "Aug. 2025",
-      bullets: [
-        "Engineered a complete embedded IoT solution from PCB design to firmware, solving the real-world problem of hiker safety in off-grid environments.",
-        "Managed project lifecycle including hardware procurement, budget planning, and coordination of offshore PCB manufacturing.",
-        "Developed custom OLED UI and FreeRTOS firmware supporting real-time emergency telemetry, establishing reliable communication over LoRa.",
-      ],
-      tech: ["ESP32", "LoRa SX1278", "GPS", "OLED", "BLE"],
-      link: "https://lnkd.in/p/gs7WJK-Y",
-    },
-  ];
+  useEffect(() => {
+    async function fetchAllSanityData() {
+      try {
+        const [
+          sanityProfile,
+          sanitySkills,
+          sanityProjects,
+          sanityCerts,
+          sanityEdu,
+          sanityLeadership,
+        ] = await Promise.all([
+          client.fetch<SanityProfile>(PROFILE_QUERY),
+          client.fetch<SanitySkillCategory[]>(SKILLS_QUERY),
+          client.fetch<SanityProject[]>(PROJECTS_QUERY),
+          client.fetch<SanityCertification[]>(CERTIFICATIONS_QUERY),
+          client.fetch<SanityEducation[]>(EDUCATION_QUERY),
+          client.fetch<SanityLeadership[]>(LEADERSHIP_QUERY),
+        ]);
 
-  const certifications = [
-    {
-      title: "HackElite 2.0 Finalist",
-      desc: "LevelUp LMS EdTech Project - IEEE WIE Student Affinity Group",
-      year: "2026",
-    },
-    {
-      title: "InspiHER{Tech} V3.0 Finalist",
-      desc: "IEEE WIE Student Branch Affinity Group (SLTC)",
-      year: "2026",
-    },
-    {
-      title: "Innovate with Ballerina Coding Challenge",
-      desc: "IEEE CS Student Branch Chapter & WSO2",
-      year: "2025",
-    },
-    {
-      title: "Introduction to SQL",
-      desc: "Sololearn",
-      year: "2025",
-    },
-    {
-      title: "FIT Expo Active Participant",
-      desc: "Lora10 Microcontroller Project - IT Faculty",
-      year: "2025",
-    },
-  ];
+        if (sanityProfile) setProfile(sanityProfile);
+        if (sanitySkills && sanitySkills.length > 0) setSkills(sanitySkills);
+        if (sanityProjects && sanityProjects.length > 0) setProjects(sanityProjects);
+        if (sanityCerts && sanityCerts.length > 0) setCertifications(sanityCerts);
+        if (sanityEdu && sanityEdu.length > 0) setEducationList(sanityEdu);
+        if (sanityLeadership && sanityLeadership.length > 0) setLeadership(sanityLeadership);
+      } catch (err) {
+        console.warn("Could not fetch Sanity data, staying on fallback data:", err);
+      }
+    }
+    fetchAllSanityData();
+  }, []);
 
-  const leadership = [
-    {
-      period: "2025 - 2026",
-      title: "Main Batch Representative",
-      org: "Batch 23, Faculty of Information Technology",
-      desc: "Represented 200+ students and actively coordinated with faculty on academic concerns and curriculum feedback.",
-    },
-    {
-      period: "2025 - Present",
-      title: "HR Pillar Member",
-      org: "FIT MOMENT, IT Faculty Media Unit",
-      desc: "Managed recruitment pipelines for 15+ events and effectively coordinated tasks for 30+ team members.",
-    },
-    {
-      period: "2026 - Present",
-      title: "Program & Event Coordination",
-      org: "IEEE WIE Student Branch Affinity Group",
-      desc: "Organized technical workshops and skill-building sessions reaching 100+ attendees.",
-    },
-  ];
+  // Derived values from profile
+  const RESUME_URL = profile.resumeUrl || fallbackProfile.resumeUrl || "";
+  const profileImageSrc = profile.uploadedImageUrl || profile.profileImageUrl || fallbackProfile.profileImageUrl || "";
 
-  const RESUME_URL =
-    "https://drive.google.com/file/d/1G6yXHsM6qA9XaI32fa7dv-FPYuAGqu2t/view?usp=drive_link";
 
   return (
     <>
@@ -706,7 +666,7 @@ export default function Home() {
             className="absolute top-24 right-8 sm:right-12 flex gap-3"
           >
             <a
-              href="https://www.linkedin.com/in/chamathka-ranathunga-a825922aa"
+              href={profile.linkedinUrl || fallbackProfile.linkedinUrl}
               target="_blank"
               rel="noreferrer"
               className="social-btn"
@@ -719,7 +679,7 @@ export default function Home() {
               <LinkedinIcon size={16} />
             </a>
             <a
-              href="https://github.com/Rjkl003CR"
+              href={profile.githubUrl || fallbackProfile.githubUrl}
               target="_blank"
               rel="noreferrer"
               className="social-btn"
@@ -762,8 +722,8 @@ export default function Home() {
               }}
             >
               <Image
-                src="https://drive.google.com/uc?export=view&id=1mNdOK9J5v8yRXJvIkg-LFLUV8Oip9w2p"
-                alt="Chamathka Ranathunga"
+                src={profileImageSrc}
+                alt={profile.name || "Profile"}
                 width={300}
                 height={300}
                 className="profile-image"
@@ -859,7 +819,7 @@ export default function Home() {
               className="mb-4"
             >
               <span className="text-lg sm:text-xl font-light tracking-wide" style={{ color: "var(--text-secondary)" }}>
-                Hello, I&apos;m
+                {profile.greeting || "Hello, I'm"}
               </span>
             </motion.div>
 
@@ -869,13 +829,13 @@ export default function Home() {
                 fontFamily: "var(--font-outfit), Outfit, sans-serif",
               }}
             >
-              <TypewriterText text="Chamathka Ranathunga" delay={1200} speed={70} />
+              <TypewriterText text={profile.name || fallbackProfile.name} delay={1200} speed={70} />
             </h1>
             <p
               className="text-sm sm:text-base font-semibold tracking-[0.3em] uppercase mb-10"
               style={{ color: "var(--accent)" }}
             >
-              <TypewriterText text="Full-Stack Developer & Creative Thinker" delay={3200} speed={60} />
+              <TypewriterText text={profile.title || fallbackProfile.title || ""} delay={3200} speed={60} />
             </p>
 
             {/* CTA Buttons */}
@@ -939,27 +899,9 @@ export default function Home() {
                   className="space-y-5 text-base leading-relaxed"
                   style={{ color: "var(--text-secondary)" }}
                 >
-                  <p>
-                    I am an Information Technology undergraduate at the{" "}
-                    <strong style={{ color: "var(--text-primary)" }}>
-                      University of Moratuwa
-                    </strong>{" "}
-                    with a passion for software design and system architecture. I
-                    enjoy translating complex business domain problems into scalable web
-                    applications and optimizing system workflows.
-                  </p>
-                  <p>
-                    My hands-on experience spans working with full-stack web
-                    technologies like{" "}
-                    <strong style={{ color: "var(--text-primary)" }}>
-                      Next.js, Spring Boot, and PostgreSQL
-                    </strong>
-                    , down to modern IoT development using ESP32. I actively participate in hackathons,
-                    university leadership roles, and tech events.
-                  </p>
-                  <p>
-                    I am actively seeking <strong style={{ color: "var(--accent)" }}>Software Engineering</strong> and <strong style={{ color: "var(--accent)" }}>Business Analyst internship</strong> opportunities where I can apply my dual focus on technical development and analytical problem-solving to real business challenges.
-                  </p>
+                  {(profile.bio || fallbackProfile.bio || []).map((paragraph, idx) => (
+                    <p key={idx} dangerouslySetInnerHTML={{ __html: paragraph }} />
+                  ))}
                 </div>
               </Reveal>
 
@@ -972,7 +914,7 @@ export default function Home() {
                         style={{ color: "var(--accent)" }}
                       />
                       <span style={{ color: "var(--text-secondary)" }}>
-                        Moratuwa, Sri Lanka
+                        {profile.location || fallbackProfile.location}
                       </span>
                     </div>
                     <div className="flex items-center gap-3 text-sm">
@@ -981,7 +923,7 @@ export default function Home() {
                         style={{ color: "var(--accent)" }}
                       />
                       <span style={{ color: "var(--text-secondary)" }}>
-                        rjklcr003@gmail.com
+                        {profile.email || fallbackProfile.email}
                       </span>
                     </div>
                     <div className="flex items-center gap-3 text-sm">
@@ -990,7 +932,7 @@ export default function Home() {
                         style={{ color: "var(--accent)" }}
                       />
                       <span style={{ color: "var(--text-secondary)" }}>
-                        +94 76 592 3995
+                        {profile.phone || fallbackProfile.phone}
                       </span>
                     </div>
                     <div
@@ -999,7 +941,7 @@ export default function Home() {
                     >
                       <div className="flex gap-4">
                         <a
-                          href="https://github.com/Rjkl003CR"
+                          href={profile.githubUrl || fallbackProfile.githubUrl}
                           target="_blank"
                           rel="noreferrer"
                           className="flex items-center gap-2 text-xs font-medium transition-all duration-300"
@@ -1016,7 +958,7 @@ export default function Home() {
                           <GithubIcon size={14} /> GitHub
                         </a>
                         <a
-                          href="https://www.linkedin.com/in/chamathka-ranathunga-a825922aa"
+                          href={profile.linkedinUrl || fallbackProfile.linkedinUrl}
                           target="_blank"
                           rel="noreferrer"
                           className="flex items-center gap-2 text-xs font-medium transition-all duration-300"
@@ -1063,12 +1005,14 @@ export default function Home() {
               variants={staggerContainer}
               className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
             >
-              {skills.map((skill, i) => (
+              {skills.map((skill, i) => {
+                const IconComp = iconMap[skill.iconKey || "code"] || Code;
+                return (
                 <motion.div key={i} variants={staggerItem}>
                   <TiltCard>
                     <div className="glass-card p-6 group cursor-default h-full">
                       <div className="icon-box w-12 h-12 rounded-xl flex items-center justify-center mb-5">
-                        <skill.icon
+                        <IconComp
                           size={24}
                           style={{ color: "var(--accent)" }}
                         />
@@ -1083,7 +1027,7 @@ export default function Home() {
                         {skill.title}
                       </h3>
                       <div className="flex flex-wrap gap-2">
-                        {skill.items.map((item, j) => (
+                        {(skill.items || []).map((item, j) => (
                           <span key={j} className="tech-tag">
                             {item}
                           </span>
@@ -1092,7 +1036,8 @@ export default function Home() {
                     </div>
                   </TiltCard>
                 </motion.div>
-              ))}
+                );
+              })}
             </motion.div>
           </div>
         </section>
@@ -1130,6 +1075,18 @@ export default function Home() {
                         }}
                       />
 
+                      {/* Optional Sanity project image */}
+                      {project.imageUrl && (
+                        <div className="relative w-full h-48 overflow-hidden bg-black/20">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={project.imageUrl}
+                            alt={project.title}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          />
+                        </div>
+                      )}
+
                       <div className="p-7">
                         <div className="flex justify-between items-start mb-3">
                           <div>
@@ -1142,12 +1099,14 @@ export default function Home() {
                             >
                               {project.title}
                             </h3>
-                            <p
-                              className="text-sm font-medium"
-                              style={{ color: "var(--accent)" }}
-                            >
-                              {project.subtitle}
-                            </p>
+                            {project.subtitle && (
+                              <p
+                                className="text-sm font-medium"
+                                style={{ color: "var(--accent)" }}
+                              >
+                                {project.subtitle}
+                              </p>
+                            )}
                           </div>
                           {project.date && (
                             <span
@@ -1158,52 +1117,66 @@ export default function Home() {
                           )}
                         </div>
 
-                        <ul
-                          className="space-y-2.5 my-5"
-                          style={{ color: "var(--text-secondary)" }}
-                        >
-                          {project.bullets.map((bullet, j) => (
-                            <li
-                              key={j}
-                              className="flex items-start gap-2.5 text-sm leading-relaxed"
+                        {project.bullets && project.bullets.length > 0 && (
+                          <ul
+                            className="space-y-2.5 my-5"
+                            style={{ color: "var(--text-secondary)" }}
+                          >
+                            {project.bullets.map((bullet, j) => (
+                              <li
+                                key={j}
+                                className="flex items-start gap-2.5 text-sm leading-relaxed"
+                              >
+                                <ChevronRight
+                                  size={14}
+                                  className="mt-0.5 shrink-0 transition-transform duration-300 group-hover:translate-x-1"
+                                  style={{
+                                    color: "var(--accent)",
+                                    opacity: 0.6,
+                                  }}
+                                />
+                                <span>{bullet}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+
+                        {project.tech && project.tech.length > 0 && (
+                          <div className="flex flex-wrap gap-2 mb-5">
+                            {project.tech.map((t, j) => (
+                              <span key={j} className="tech-tag">
+                                {t}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+
+                        <div className="flex items-center gap-4 flex-wrap">
+                          {(project.github || project.link) && (
+                            <a
+                              href={project.github || project.link}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="inline-flex items-center gap-2 text-sm font-medium transition-all duration-300 group/link"
+                              style={{ color: "var(--accent)" }}
                             >
-                              <ChevronRight
-                                size={14}
-                                className="mt-0.5 shrink-0 transition-transform duration-300 group-hover:translate-x-1"
-                                style={{
-                                  color: "var(--accent)",
-                                  opacity: 0.6,
-                                }}
-                              />
-                              <span>{bullet}</span>
-                            </li>
-                          ))}
-                        </ul>
-
-                        <div className="flex flex-wrap gap-2 mb-5">
-                          {project.tech.map((t, j) => (
-                            <span key={j} className="tech-tag">
-                              {t}
-                            </span>
-                          ))}
+                              <GithubIcon size={15} /> View Source Code{" "}
+                              <ArrowUpRight size={14} className="link-arrow" />
+                            </a>
+                          )}
+                          {project.link && project.github && (
+                            <a
+                              href={project.link}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="inline-flex items-center gap-2 text-sm font-medium transition-all duration-300 group/link"
+                              style={{ color: "var(--accent)" }}
+                            >
+                              <ExternalLink size={15} /> Live Demo{" "}
+                              <ArrowUpRight size={14} className="link-arrow" />
+                            </a>
+                          )}
                         </div>
-
-                        <a
-                          href={project.link}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="inline-flex items-center gap-2 text-sm font-medium transition-all duration-300 group/link"
-                          style={{ color: "var(--accent)" }}
-                          onMouseEnter={(e) =>
-                            (e.currentTarget.style.gap = "10px")
-                          }
-                          onMouseLeave={(e) =>
-                            (e.currentTarget.style.gap = "8px")
-                          }
-                        >
-                          <GithubIcon size={15} /> View Source Code{" "}
-                          <ArrowUpRight size={14} className="link-arrow" />
-                        </a>
                       </div>
                     </div>
                   </TiltCard>
@@ -1232,31 +1205,7 @@ export default function Home() {
                 </Reveal>
 
                 <div className="space-y-8 pl-6 timeline-line">
-                  {[
-                    {
-                      degree: "BSc (Hons) in Information Technology",
-                      school: "University of Moratuwa",
-                      year: "Expected 2028",
-                      location: "Moratuwa, Sri Lanka",
-                      active: true,
-                    },
-                    {
-                      degree: "G.C.E. Advanced Level (A/L)",
-                      school: "Narammala Mayurapada Central College",
-                      year: "2022",
-                      location: "Kurunegala, Sri Lanka",
-                      detail:
-                        "Combined Maths (B), Physics (B), Chemistry (A) — Z-Score: 1.6516",
-                    },
-                    {
-                      degree: "G.C.E. Ordinary Level (O/L)",
-                      school: "Narammala Mayurapada Central College",
-                      year: "2019",
-                      location: "Kurunegala, Sri Lanka",
-                      detail:
-                        "9 A's (including Mathematics, English, and Science)",
-                    },
-                  ].map((edu, i) => (
+                  {educationList.map((edu, i) => (
                     <Reveal key={i} delay={i * 0.15}>
                       <div className="relative pl-6">
                         {/* Timeline dot */}
@@ -1331,7 +1280,7 @@ export default function Home() {
                               className="text-xs mt-1"
                               style={{ color: "var(--text-muted)" }}
                             >
-                              {cert.desc}
+                              {cert.description}
                             </p>
                           </div>
                           <span className="cert-badge text-xs font-mono px-3 py-1 rounded-md shrink-0">
@@ -1380,14 +1329,14 @@ export default function Home() {
                         className="text-sm"
                         style={{ color: "var(--accent)", opacity: 0.8 }}
                       >
-                        {item.org}
+                        {item.organization}
                       </p>
-                      {item.desc && (
+                      {item.description && (
                         <p
                           className="text-xs mt-3 leading-relaxed"
                           style={{ color: "var(--text-muted)" }}
                         >
-                          {item.desc}
+                          {item.description}
                         </p>
                       )}
                     </div>
@@ -1431,13 +1380,12 @@ export default function Home() {
                     className="text-sm leading-relaxed"
                     style={{ color: "var(--text-secondary)" }}
                   >
-                    I am currently seeking software engineering and business analyst internship
-                    opportunities. Feel free to send me a message or connect directly!
+                    {profile.contactBlurb || fallbackProfile.contactBlurb}
                   </p>
 
                   {/* Email */}
                   <a
-                    href="mailto:rjklcr003@gmail.com"
+                    href={`mailto:${profile.email || fallbackProfile.email}`}
                     className="glass-card p-4 rounded-xl flex items-center gap-4 transition-all hover:border-[var(--accent)]"
                     style={{ borderColor: "var(--border-color)" }}
                   >
@@ -1449,13 +1397,13 @@ export default function Home() {
                     </div>
                     <div>
                       <p className="text-xs font-medium" style={{ color: "var(--text-muted)" }}>Email</p>
-                      <p className="text-sm font-semibold">rjklcr003@gmail.com</p>
+                      <p className="text-sm font-semibold">{profile.email || fallbackProfile.email}</p>
                     </div>
                   </a>
 
                   {/* Phone */}
                   <a
-                    href="tel:0765923995"
+                    href={`tel:${(profile.phone || fallbackProfile.phone || "").replace(/\s/g, "")}`}
                     className="glass-card p-4 rounded-xl flex items-center gap-4 transition-all hover:border-[var(--accent)]"
                     style={{ borderColor: "var(--border-color)" }}
                   >
@@ -1467,7 +1415,7 @@ export default function Home() {
                     </div>
                     <div>
                       <p className="text-xs font-medium" style={{ color: "var(--text-muted)" }}>Phone</p>
-                      <p className="text-sm font-semibold">+94 76 592 3995</p>
+                      <p className="text-sm font-semibold">{profile.phone || fallbackProfile.phone}</p>
                     </div>
                   </a>
 
@@ -1494,8 +1442,8 @@ export default function Home() {
                   {/* Socials */}
                   <div className="flex gap-3 mt-2">
                     {[
-                      { icon: GithubIcon, href: "https://github.com/Rjkl003CR", label: "GitHub" },
-                      { icon: LinkedinIcon, href: "https://www.linkedin.com/in/chamathka-ranathunga-a825922aa", label: "LinkedIn" },
+                      { icon: GithubIcon, href: profile.githubUrl || fallbackProfile.githubUrl || "", label: "GitHub" },
+                      { icon: LinkedinIcon, href: profile.linkedinUrl || fallbackProfile.linkedinUrl || "", label: "LinkedIn" },
                     ].map((social) => (
                       <a
                         key={social.label}
@@ -1530,7 +1478,7 @@ export default function Home() {
 
             <div className="section-divider mt-16 mb-6" />
             <p className="text-xs text-center" style={{ color: "var(--text-muted)" }}>
-              © {new Date().getFullYear()} Chamathka Ranathunga. All rights
+              © {new Date().getFullYear()} {profile.name || fallbackProfile.name}. All rights
               reserved.
             </p>
           </div>
