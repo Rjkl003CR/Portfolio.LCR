@@ -4,6 +4,8 @@ import {visionTool} from '@sanity/vision'
 import {schema} from './sanity/schemaTypes'
 import {projectId, dataset} from './sanity/env'
 
+const isDev = process.env.NODE_ENV === 'development'
+
 export default defineConfig({
   basePath: '/studio',
   projectId,
@@ -12,8 +14,7 @@ export default defineConfig({
   schema,
   plugins: [
     structureTool(),
-    // Vision is a tool that lets you query your content with GROQ in the studio
-    // https://www.sanity.io/docs/the-vision-plugin
-    visionTool({defaultApiVersion: '2024-01-01'}),
+    // Vision GROQ tool — only loaded in development to keep production bundle lean
+    ...(isDev ? [visionTool({defaultApiVersion: '2024-01-01'})] : []),
   ],
 })
