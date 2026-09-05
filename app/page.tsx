@@ -564,15 +564,31 @@ export default function Home() {
           }}
         >
           <div className="max-w-6xl mx-auto px-6 h-16 flex justify-between items-center">
-            <a
-              href="#"
-              className="text-xl font-bold tracking-tight"
-              style={{
-                fontFamily: "var(--font-outfit), Outfit, sans-serif",
-              }}
-            >
-              <span style={{ color: "var(--accent)" }}>CHAMATHKA</span>
-              <span style={{ color: "var(--text-primary)" }}>.DEV</span>
+            <a href="#" className="flex items-center gap-2 group">
+              {/* Terminal icon box — like AIU.DEV style */}
+              <div
+                className="flex items-center justify-center rounded-lg transition-all duration-300 group-hover:shadow-[0_0_16px_rgba(20,184,166,0.4)]"
+                style={{
+                  background: "rgba(20,184,166,0.1)",
+                  border: "1px solid rgba(20,184,166,0.4)",
+                  borderRadius: "8px",
+                  padding: "4px 9px",
+                  color: "var(--accent)",
+                  fontFamily: "var(--font-outfit), monospace",
+                  fontSize: "13px",
+                  fontWeight: "700",
+                  letterSpacing: "0.05em",
+                }}
+              >
+                &gt;_
+              </div>
+              <span
+                className="text-xl font-bold tracking-tight"
+                style={{ fontFamily: "var(--font-outfit), Outfit, sans-serif" }}
+              >
+                <span style={{ color: "var(--accent)" }}>CHAMATHKA</span>
+                <span style={{ color: "var(--text-primary)" }}>.DEV</span>
+              </span>
             </a>
 
             {/* Desktop Nav */}
@@ -862,26 +878,32 @@ export default function Home() {
             </motion.div>
           </motion.div>
 
-          {/* Scroll indicator */}
+          {/* Scroll indicator — click to scroll down one viewport */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 2, duration: 0.6 }}
             className="absolute bottom-8 left-1/2 -translate-x-1/2"
           >
-            <motion.div
-              animate={{ y: [0, 8, 0] }}
-              transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
-              className="w-5 h-8 rounded-full border-2 flex justify-center pt-1.5"
-              style={{ borderColor: "var(--accent-glow-strong)" }}
+            <button
+              aria-label="Scroll down"
+              onClick={() => window.scrollBy({ top: window.innerHeight, behavior: "smooth" })}
+              className="group flex flex-col items-center gap-1 cursor-pointer focus:outline-none"
             >
               <motion.div
-                animate={{ opacity: [0.4, 1, 0.4] }}
-                transition={{ repeat: Infinity, duration: 2 }}
-                className="w-1 h-2 rounded-full"
-                style={{ background: "var(--accent)" }}
-              />
-            </motion.div>
+                animate={{ y: [0, 8, 0] }}
+                transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+                className="w-5 h-8 rounded-full border-2 flex justify-center pt-1.5 transition-colors group-hover:border-[var(--accent)]"
+                style={{ borderColor: "var(--accent-glow-strong)" }}
+              >
+                <motion.div
+                  animate={{ opacity: [0.4, 1, 0.4] }}
+                  transition={{ repeat: Infinity, duration: 2 }}
+                  className="w-1 h-2 rounded-full"
+                  style={{ background: "var(--accent)" }}
+                />
+              </motion.div>
+            </button>
           </motion.div>
         </section>
 
@@ -1476,11 +1498,86 @@ export default function Home() {
               </Reveal>
             </div>
 
-            <div className="section-divider mt-16 mb-6" />
-            <p className="text-xs text-center" style={{ color: "var(--text-muted)" }}>
-              © {new Date().getFullYear()} {profile.name || fallbackProfile.name}. All rights
-              reserved.
-            </p>
+            {/* ─── Minimal Professional Footer Bottom ─── */}
+            <div className="section-divider mt-20 mb-10" />
+
+            <div className="flex flex-col items-center gap-5 pb-2">
+
+              {/* Brand logo */}
+              <div className="flex items-center gap-2">
+                <div
+                  style={{
+                    background: "rgba(20,184,166,0.08)",
+                    border: "1px solid rgba(20,184,166,0.35)",
+                    borderRadius: "7px",
+                    padding: "3px 8px",
+                    color: "var(--accent)",
+                    fontFamily: "monospace",
+                    fontSize: "11px",
+                    fontWeight: "700",
+                  }}
+                >
+                  &gt;_
+                </div>
+                <span style={{ fontFamily: "var(--font-outfit), Outfit, sans-serif", fontSize: "14px", fontWeight: 700 }}>
+                  <span style={{ color: "var(--accent)" }}>CHAMATHKA</span>
+                  <span style={{ color: "var(--text-primary)" }}>.DEV</span>
+                </span>
+              </div>
+
+              {/* Tagline */}
+              <p style={{ fontSize: "11px", color: "var(--text-muted)", letterSpacing: "0.03em" }}>
+                Full-Stack Developer &amp; IT Undergraduate &mdash; University of Moratuwa
+              </p>
+
+              {/* Icon-only social row */}
+              <div className="flex items-center gap-3">
+                <a
+                  href={profile.githubUrl || fallbackProfile.githubUrl || ""}
+                  target="_blank" rel="noreferrer" aria-label="GitHub"
+                  className="w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-200 hover:scale-110"
+                  style={{ background: "rgba(255,255,255,0.04)", border: "1px solid var(--border-color)", color: "var(--text-muted)" }}
+                  onMouseEnter={e => { e.currentTarget.style.borderColor = "var(--accent)"; e.currentTarget.style.color = "var(--accent)"; }}
+                  onMouseLeave={e => { e.currentTarget.style.borderColor = "var(--border-color)"; e.currentTarget.style.color = "var(--text-muted)"; }}
+                >
+                  <GithubIcon size={14} />
+                </a>
+                <a
+                  href={profile.linkedinUrl || fallbackProfile.linkedinUrl || ""}
+                  target="_blank" rel="noreferrer" aria-label="LinkedIn"
+                  className="w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-200 hover:scale-110"
+                  style={{ background: "rgba(255,255,255,0.04)", border: "1px solid var(--border-color)", color: "var(--text-muted)" }}
+                  onMouseEnter={e => { e.currentTarget.style.borderColor = "var(--accent)"; e.currentTarget.style.color = "var(--accent)"; }}
+                  onMouseLeave={e => { e.currentTarget.style.borderColor = "var(--border-color)"; e.currentTarget.style.color = "var(--text-muted)"; }}
+                >
+                  <LinkedinIcon size={14} />
+                </a>
+                <a
+                  href={`mailto:${profile.email || fallbackProfile.email}`}
+                  aria-label="Email"
+                  className="w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-200 hover:scale-110"
+                  style={{ background: "rgba(255,255,255,0.04)", border: "1px solid var(--border-color)", color: "var(--text-muted)" }}
+                  onMouseEnter={e => { e.currentTarget.style.borderColor = "var(--accent)"; e.currentTarget.style.color = "var(--accent)"; }}
+                  onMouseLeave={e => { e.currentTarget.style.borderColor = "var(--border-color)"; e.currentTarget.style.color = "var(--text-muted)"; }}
+                >
+                  <Mail size={14} />
+                </a>
+              </div>
+
+              {/* Divider */}
+              <div className="w-full section-divider" />
+
+              {/* Copyright */}
+              <div className="flex flex-col sm:flex-row items-center justify-between w-full gap-1">
+                <p style={{ fontSize: "10px", color: "var(--text-muted)" }}>
+                  © {new Date().getFullYear()} {profile.name || fallbackProfile.name}. All rights reserved.
+                </p>
+                <p style={{ fontSize: "10px", color: "var(--text-muted)" }}>
+                  Designed &amp; built with ♥ in Sri Lanka
+                </p>
+              </div>
+
+            </div>
           </div>
         </footer>
       </div>
