@@ -23,6 +23,12 @@ export const certificationType = defineType({
       type: 'string',
     }),
     defineField({
+      name: 'url',
+      title: 'Credential URL',
+      type: 'url',
+      description: 'Link to the credential or certificate (optional)',
+    }),
+    defineField({
       name: 'order',
       title: 'Display Order',
       type: 'number',
