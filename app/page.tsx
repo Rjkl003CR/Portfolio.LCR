@@ -77,6 +77,33 @@ const iconMap: Record<string, React.ComponentType<{ size?: number; style?: React
   server: Server,
 };
 
+/* ───── Scroll Down Button ───── */
+function ScrollDownButton() {
+  return (
+    <div className="flex justify-center mt-12 pb-8">
+      <button
+        aria-label="Scroll down"
+        onClick={() => window.scrollBy({ top: window.innerHeight, behavior: "smooth" })}
+        className="group flex flex-col items-center gap-1 cursor-pointer focus:outline-none"
+      >
+        <motion.div
+          animate={{ y: [0, 8, 0] }}
+          transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+          className="w-5 h-8 rounded-full border-2 flex justify-center pt-1.5 transition-colors group-hover:border-[var(--accent)]"
+          style={{ borderColor: "rgba(20,184,166,0.3)" }}
+        >
+          <motion.div
+            animate={{ opacity: [0.4, 1, 0.4] }}
+            transition={{ repeat: Infinity, duration: 2 }}
+            className="w-1 h-2 rounded-full"
+            style={{ background: "var(--accent)" }}
+          />
+        </motion.div>
+      </button>
+    </div>
+  );
+}
+
 /* ───── Scroll Progress Bar ───── */
 function ScrollProgress() {
   const { scrollYProgress } = useScroll();
@@ -469,6 +496,27 @@ function LoadingScreen() {
 export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
   const [navOpen, setNavOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState("");
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setActiveSection(entry.target.id);
+          }
+        });
+      },
+      { rootMargin: "-30% 0px -70% 0px" }
+    );
+
+    const sections = document.querySelectorAll("section[id], footer[id]");
+    sections.forEach((section) => observer.observe(section));
+
+    return () => {
+      sections.forEach((section) => observer.unobserve(section));
+    };
+  }, []);
 
   useEffect(() => {
     // Simulate loading time 
@@ -593,16 +641,22 @@ export default function Home() {
 
             {/* Desktop Nav */}
             <div className="hidden md:flex items-center gap-8">
-              {navLinks.map((link) => (
-                <a
-                  key={link.href}
-                  href={link.href}
-                  className="nav-link text-sm font-medium"
-                  style={{ color: "var(--text-secondary)" }}
-                >
-                  {link.label}
-                </a>
-              ))}
+              {navLinks.map((link) => {
+                const isActive = activeSection === link.href.substring(1);
+                return (
+                  <a
+                    key={link.href}
+                    href={link.href}
+                    className="nav-link text-sm font-medium transition-all duration-300"
+                    style={{
+                      color: isActive ? "var(--accent)" : "var(--text-secondary)",
+                      textShadow: isActive ? "0 0 10px rgba(20,184,166,0.3)" : "none",
+                    }}
+                  >
+                    {link.label}
+                  </a>
+                );
+              })}
             </div>
 
             {/* Mobile Toggle */}
@@ -631,26 +685,25 @@ export default function Home() {
                 }}
               >
                 <div className="px-6 py-5 flex flex-col gap-4">
-                  {navLinks.map((link, i) => (
-                    <motion.a
-                      key={link.href}
-                      href={link.href}
-                      onClick={() => setNavOpen(false)}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: i * 0.05 }}
-                      className="text-sm font-medium transition-colors"
-                      style={{ color: "var(--text-secondary)" }}
-                      onMouseEnter={(e) =>
-                        (e.currentTarget.style.color = "var(--accent)")
-                      }
-                      onMouseLeave={(e) =>
-                        (e.currentTarget.style.color = "var(--text-secondary)")
-                      }
-                    >
-                      {link.label}
-                    </motion.a>
-                  ))}
+                  {navLinks.map((link, i) => {
+                    const isActive = activeSection === link.href.substring(1);
+                    return (
+                      <motion.a
+                        key={link.href}
+                        href={link.href}
+                        onClick={() => setNavOpen(false)}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: i * 0.05 }}
+                        className="text-sm font-medium transition-all duration-300"
+                        style={{ color: isActive ? "var(--accent)" : "var(--text-secondary)" }}
+                        onMouseEnter={(e) => (e.currentTarget.style.color = "var(--accent)")}
+                        onMouseLeave={(e) => (e.currentTarget.style.color = isActive ? "var(--accent)" : "var(--text-secondary)")}
+                      >
+                        {link.label}
+                      </motion.a>
+                    );
+                  })}
                 </div>
               </motion.div>
             )}
@@ -1003,6 +1056,7 @@ export default function Home() {
               </Reveal>
             </div>
           </div>
+          <ScrollDownButton />
         </section>
 
         {/* ═══ SKILLS SECTION ═══ */}
@@ -1062,6 +1116,7 @@ export default function Home() {
               })}
             </motion.div>
           </div>
+          <ScrollDownButton />
         </section>
 
         {/* ═══ PROJECTS SECTION ═══ */}
@@ -1206,6 +1261,7 @@ export default function Home() {
               ))}
             </motion.div>
           </div>
+          <ScrollDownButton />
         </section>
 
         {/* ═══ EDUCATION & ACHIEVEMENTS ═══ */}
@@ -1293,22 +1349,47 @@ export default function Home() {
                   {certifications.map((cert, i) => (
                     <motion.div key={i} variants={staggerItem}>
                       <TiltCard>
-                        <div className="glass-card p-5 flex items-start justify-between gap-4 group">
-                          <div>
-                            <h3 className="font-semibold text-sm">
-                              {cert.title}
-                            </h3>
-                            <p
-                              className="text-xs mt-1"
-                              style={{ color: "var(--text-muted)" }}
-                            >
-                              {cert.description}
-                            </p>
+                        {cert.url ? (
+                          <a 
+                            href={cert.url} 
+                            target="_blank" 
+                            rel="noopener noreferrer" 
+                            className="glass-card p-5 flex items-start justify-between gap-4 group cursor-pointer hover:border-[var(--accent)] transition-colors"
+                          >
+                            <div>
+                              <h3 className="font-semibold text-sm flex items-center gap-2 group-hover:text-[var(--accent)] transition-colors">
+                                {cert.title}
+                                <ExternalLink size={14} className="opacity-0 group-hover:opacity-100 transition-opacity" />
+                              </h3>
+                              <p
+                                className="text-xs mt-1"
+                                style={{ color: "var(--text-muted)" }}
+                              >
+                                {cert.description}
+                              </p>
+                            </div>
+                            <span className="cert-badge text-xs font-mono px-3 py-1 rounded-md shrink-0 group-hover:bg-[rgba(20,184,166,0.15)] group-hover:text-[var(--accent)] transition-colors">
+                              {cert.year}
+                            </span>
+                          </a>
+                        ) : (
+                          <div className="glass-card p-5 flex items-start justify-between gap-4 group">
+                            <div>
+                              <h3 className="font-semibold text-sm">
+                                {cert.title}
+                              </h3>
+                              <p
+                                className="text-xs mt-1"
+                                style={{ color: "var(--text-muted)" }}
+                              >
+                                {cert.description}
+                              </p>
+                            </div>
+                            <span className="cert-badge text-xs font-mono px-3 py-1 rounded-md shrink-0">
+                              {cert.year}
+                            </span>
                           </div>
-                          <span className="cert-badge text-xs font-mono px-3 py-1 rounded-md shrink-0">
-                            {cert.year}
-                          </span>
-                        </div>
+                        )}
                       </TiltCard>
                     </motion.div>
                   ))}
@@ -1316,6 +1397,7 @@ export default function Home() {
               </div>
             </div>
           </div>
+          <ScrollDownButton />
         </section>
 
         {/* ═══ LEADERSHIP SECTION ═══ */}
@@ -1367,6 +1449,7 @@ export default function Home() {
               ))}
             </motion.div>
           </div>
+          <ScrollDownButton />
         </section>
 
         {/* ═══ CONTACT / FOOTER ═══ */}
@@ -1501,37 +1584,49 @@ export default function Home() {
             {/* ─── Minimal Professional Footer Bottom ─── */}
             <div className="section-divider mt-20 mb-10" />
 
-            <div className="flex flex-col items-center gap-5 pb-2">
-
-              {/* Brand logo */}
-              <div className="flex items-center gap-2">
-                <div
-                  style={{
-                    background: "rgba(20,184,166,0.08)",
-                    border: "1px solid rgba(20,184,166,0.35)",
-                    borderRadius: "7px",
-                    padding: "3px 8px",
-                    color: "var(--accent)",
-                    fontFamily: "monospace",
-                    fontSize: "11px",
-                    fontWeight: "700",
-                  }}
-                >
-                  &gt;_
+            <div className="flex flex-col md:flex-row items-center md:items-start justify-between gap-8 pb-4">
+              {/* Left: Brand & Tagline */}
+              <div className="flex flex-col items-center md:items-start gap-4">
+                <div className="flex items-center gap-2">
+                  <div
+                    style={{
+                      background: "rgba(20,184,166,0.08)",
+                      border: "1px solid rgba(20,184,166,0.35)",
+                      borderRadius: "6px",
+                      padding: "2px 6px",
+                      color: "var(--accent)",
+                      fontFamily: "monospace",
+                      fontSize: "10px",
+                      fontWeight: "700",
+                    }}
+                  >
+                    &gt;_
+                  </div>
+                  <span style={{ fontFamily: "var(--font-outfit), Outfit, sans-serif", fontSize: "12px", fontWeight: 700 }}>
+                    <span style={{ color: "var(--accent)" }}>CHAMATHKA</span>
+                    <span style={{ color: "var(--text-primary)" }}>.DEV</span>
+                  </span>
                 </div>
-                <span style={{ fontFamily: "var(--font-outfit), Outfit, sans-serif", fontSize: "14px", fontWeight: 700 }}>
-                  <span style={{ color: "var(--accent)" }}>CHAMATHKA</span>
-                  <span style={{ color: "var(--text-primary)" }}>.DEV</span>
-                </span>
               </div>
 
-              {/* Tagline */}
-              <p style={{ fontSize: "11px", color: "var(--text-muted)", letterSpacing: "0.03em" }}>
-                Full-Stack Developer &amp; IT Undergraduate &mdash; University of Moratuwa
-              </p>
+              {/* Middle: Links */}
+              <div className="grid grid-cols-3 md:grid-cols-3 gap-x-6 gap-y-3 mt-4 md:mt-0 text-center md:text-left">
+                {navLinks.map((link) => (
+                  <a
+                    key={link.href}
+                    href={link.href}
+                    className="flex items-center justify-center transition-all duration-200 hover:scale-110 text-[11px] font-medium"
+                    style={{ color: "var(--text-muted)" }}
+                    onMouseEnter={e => { e.currentTarget.style.color = "var(--accent)"; }}
+                    onMouseLeave={e => { e.currentTarget.style.color = "var(--text-muted)"; }}
+                  >
+                    {link.label}
+                  </a>
+                ))}
+              </div>
 
-              {/* Icon-only social row */}
-              <div className="flex items-center gap-3">
+              {/* Right: Socials */}
+              <div className="flex items-center justify-center md:justify-end gap-3 mt-2 md:mt-0">
                 <a
                   href={profile.githubUrl || fallbackProfile.githubUrl || ""}
                   target="_blank" rel="noreferrer" aria-label="GitHub"
@@ -1563,20 +1658,17 @@ export default function Home() {
                   <Mail size={14} />
                 </a>
               </div>
+            </div>
 
-              {/* Divider */}
-              <div className="w-full section-divider" />
-
-              {/* Copyright */}
-              <div className="flex flex-col sm:flex-row items-center justify-between w-full gap-1">
-                <p style={{ fontSize: "10px", color: "var(--text-muted)" }}>
-                  © {new Date().getFullYear()} {profile.name || fallbackProfile.name}. All rights reserved.
-                </p>
-                <p style={{ fontSize: "10px", color: "var(--text-muted)" }}>
-                  Designed &amp; built with ♥ in Sri Lanka
-                </p>
-              </div>
-
+            {/* Copyright */}
+            <div className="flex flex-wrap items-center justify-center w-full gap-x-2 gap-y-1 mt-8 text-center text-[10px] text-[var(--text-muted)]">
+              <p>
+                © {new Date().getFullYear()} {profile.name || fallbackProfile.name}. All rights reserved.
+              </p>
+              <span className="hidden sm:inline opacity-50">•</span>
+              <p>
+                Designed &amp; built with ♥ in Sri Lanka
+              </p>
             </div>
           </div>
         </footer>
