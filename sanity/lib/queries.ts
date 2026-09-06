@@ -44,6 +44,7 @@ export interface SanityCertification {
   title: string
   description?: string
   year?: string
+  url?: string
   order?: number
 }
 
@@ -111,6 +112,7 @@ export const CERTIFICATIONS_QUERY = `*[_type == "certification"] | order(order a
   title,
   description,
   year,
+  url,
   order
 }`
 
@@ -257,7 +259,7 @@ export const fallbackCertifications: SanityCertification[] = [
   { title: "HackElite 2.0 Finalist", description: "LevelUp LMS EdTech Project - IEEE WIE Student Affinity Group", year: "2026", order: 0 },
   { title: "InspiHER{Tech} V3.0 Finalist", description: "IEEE WIE Student Branch Affinity Group (SLTC)", year: "2026", order: 1 },
   { title: "Innovate with Ballerina Coding Challenge", description: "IEEE CS Student Branch Chapter & WSO2", year: "2025", order: 2 },
-  { title: "Introduction to SQL", description: "Sololearn", year: "2025", order: 3 },
+  { title: "Introduction to SQL", description: "Sololearn", year: "2025", url: "https://www.sololearn.com/", order: 3 },
   { title: "FIT Expo Active Participant", description: "Lora10 Microcontroller Project - IT Faculty", year: "2025", order: 4 },
 ]
 
@@ -269,6 +271,6 @@ export const fallbackEducation: SanityEducation[] = [
 
 export const fallbackLeadership: SanityLeadership[] = [
   { period: "2025 - 2026", title: "Main Batch Representative", organization: "Batch 23, Faculty of Information Technology", description: "Represented 200+ students and actively coordinated with faculty on academic concerns and curriculum feedback.", order: 0 },
-  { period: "2025 - Present", title: "HR Pillar Member", organization: "FIT MOMENT, IT Faculty Media Unit", description: "Managed recruitment pipelines for 15+ events and effectively coordinated tasks for 30+ team members.", order: 1 },
-  { period: "2026 - Present", title: "Program & Event Coordination", organization: "IEEE WIE Student Branch Affinity Group", description: "Organized technical workshops and skill-building sessions reaching 100+ attendees.", order: 2 },
+  { period: "2025 - Present", title: "HR Pillar Member", organization: "FIT MOMENT, IT Faculty Media Unit", description: "Assisting with human resource activities, team coordination, and supporting internal communications for the media unit.", order: 1 },
+  { period: "2026 - Present", title: "Program & Event Coordination", organization: "IEEE WIE Student Branch Affinity Group", description: "Supporting the planning and execution of student branch events, technical workshops, and skill-building sessions.", order: 2 },
 ]
