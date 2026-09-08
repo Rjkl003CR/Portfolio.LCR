@@ -11,7 +11,7 @@ Welcome to the source code for my personal portfolio! I am **Chamathka Ranathung
 
 This portfolio is fully responsive, highly interactive, and features a modern UI with glassmorphism, dynamic animations, and full **Progressive Web App (PWA)** capabilities. All content is managed dynamically via a headless **Sanity CMS**.
 
-👉 **[View Live Demo](https://chamathka.dev)** *(Replace with your Vercel URL!)*
+👉 **[View Live Demo](https://my-portfolio-two-ebon-59.vercel.app)**
 
 
 ✨ Features
