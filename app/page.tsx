@@ -693,14 +693,17 @@ export default function Home() {
                         href={link.href}
                         onClick={(e) => {
                           e.preventDefault();
-                          setNavOpen(false);
-                          const targetId = link.href.substring(1);
-                          const elem = document.getElementById(targetId);
-                          if (elem) {
-                            elem.scrollIntoView({ behavior: "smooth" });
-                            // Optional: Update URL hash without jumping
-                            window.history.pushState(null, "", link.href);
-                          }
+                          setNavOpen(false); // Start collapse animation
+                          
+                          // Wait for the collapse animation (0.3s) to finish before calculating scroll position
+                          setTimeout(() => {
+                            const targetId = link.href.substring(1);
+                            const elem = document.getElementById(targetId);
+                            if (elem) {
+                              elem.scrollIntoView({ behavior: "smooth" });
+                              window.history.pushState(null, "", link.href);
+                            }
+                          }, 350); 
                         }}
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}

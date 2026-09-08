@@ -3,40 +3,39 @@
 ![Next.js](https://img.shields.io/badge/Next.js-15-black?style=for-the-badge&logo=next.js)
 ![React](https://img.shields.io/badge/React-19-blue?style=for-the-badge&logo=react)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4-38B2AC?style=for-the-badge&logo=tailwind-css)
+![Sanity CMS](https://img.shields.io/badge/Sanity-F03E2F?style=for-the-badge&logo=sanity)
+![PWA](https://img.shields.io/badge/PWA-5A0FC8?style=for-the-badge&logo=pwa)
 ![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)
-![Framer Motion](https://img.shields.io/badge/Framer_Motion-black?style=for-the-badge&logo=framer)
-![Vercel](https://img.shields.io/badge/Deployed_on-Vercel-black?style=for-the-badge&logo=vercel)
 
 Welcome to the source code for my personal portfolio! I am **Chamathka Ranathunga**, a Full-Stack Developer and BSc (Hons) IT Undergraduate at the University of Moratuwa, Sri Lanka.
 
-This portfolio is designed to be fully responsive, highly interactive, and features modern UI/UX principles such as glassmorphism, dynamic mesh gradients, and 3D micro-animations.
+This portfolio is fully responsive, highly interactive, and features a modern UI with glassmorphism, dynamic animations, and full **Progressive Web App (PWA)** capabilities. All content is managed dynamically via a headless **Sanity CMS**.
 
-👉 **[View Live Demo](https://chamathka.dev)** *(Replace with your Vercel URL if you haven't linked the domain yet!)*
+👉 **[View Live Demo](https://chamathka.dev)** *(Replace with your Vercel URL!)*
 
 ---
 
 ## ✨ Features
 
-- **Dynamic Animations:** Smooth scroll reveals and 3D tilt hover effects powered by `framer-motion`.
-- **Modern Styling:** Built entirely with custom CSS properties, global tokens, and `Tailwind CSS v4` utilities.
-- **Dark Theme UI:** Deep navy and teal color palette tailored for an immersive, premium aesthetic.
-- **Working Contact Form:** Backend serverless API route handling email dispatch using the **Resend API**.
-- **Fully Responsive:** Adapts seamlessly to mobile, tablet, and ultra-wide desktop viewports.
-- **SEO Optimized:** Structured semantic HTML and Next.js metadata injected.
+- **Sanity CMS Integration:** All content (Projects, Skills, Certifications, etc.) is fetched dynamically from Sanity Studio.
+- **PWA Support:** Installable on mobile and desktop with offline support and caching via `@serwist/next`.
+- **Dynamic Animations:** Smooth scroll reveals and 3D hover effects powered by `framer-motion`.
+- **Working Contact Form:** Serverless API route handling email dispatch using the **Resend API**.
+- **Modern Styling:** Built with Custom CSS, Global Tokens, and Tailwind CSS.
 
 ## 🛠️ Tech Stack
 
 - **Framework:** [Next.js](https://nextjs.org/) (App Router)
+- **CMS:** [Sanity](https://www.sanity.io/) (Headless Content Management)
 - **Language:** TypeScript
-- **Styling:** Tailwind CSS + Vanilla CSS (Custom Design System)
+- **Styling:** Tailwind CSS
 - **Animations:** Framer Motion
-- **Icons:** Lucide React
 - **Email Delivery:** Resend SDK
-- **Deployment:** Vercel
+- **PWA:** Serwist
 
 ## 🚀 Running Locally
 
-Want to run this project on your own machine? Follow these steps:
+Follow these steps to run the project on your own machine:
 
 ### 1. Clone the repository
 ```bash
@@ -50,9 +49,14 @@ npm install
 ```
 
 ### 3. Configure Environment Variables
-Create a `.env.local` file in the root of the project and add your Resend API Key:
+Create a `.env.local` file in the root directory and add your keys:
 ```env
-RESEND_API_KEY=your_resend_api_key_here
+# Email API
+RESEND_API_KEY=your_resend_api_key
+
+# Sanity CMS
+NEXT_PUBLIC_SANITY_PROJECT_ID=your_sanity_project_id
+NEXT_PUBLIC_SANITY_DATASET=production
 ```
 
 ### 4. Start the development server
@@ -60,15 +64,10 @@ RESEND_API_KEY=your_resend_api_key_here
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the portfolio.
+To access the Sanity CMS Studio to edit content, navigate to [http://localhost:3000/studio](http://localhost:3000/studio).
 
-## 📂 Project Structure
-
-- `app/` - Contains the Next.js App Router layout, page structure, and API routes.
-  - `api/contact/route.ts` - Serverless backend for the email contact form.
-  - `page.tsx` - The primary single-page portfolio layout with all UI components.
-  - `globals.css` - Custom design tokens, glassmorphic styles, and base typography.
-- `public/` - Static assets, images, and CV PDF.
+*(Note: PWA offline caching is intentionally disabled in development. To test the PWA locally, run `npm run build` then `npm run start`)*.
 
 ## 📬 Contact Me
 
