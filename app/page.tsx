@@ -691,7 +691,17 @@ export default function Home() {
                       <motion.a
                         key={link.href}
                         href={link.href}
-                        onClick={() => setNavOpen(false)}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setNavOpen(false);
+                          const targetId = link.href.substring(1);
+                          const elem = document.getElementById(targetId);
+                          if (elem) {
+                            elem.scrollIntoView({ behavior: "smooth" });
+                            // Optional: Update URL hash without jumping
+                            window.history.pushState(null, "", link.href);
+                          }
+                        }}
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: i * 0.05 }}
